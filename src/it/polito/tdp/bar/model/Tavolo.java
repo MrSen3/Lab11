@@ -39,6 +39,12 @@ public class Tavolo implements Comparable<Tavolo> {
 		// Con questo vorrei ordinare i tavoli in ordine di grandezza
 		return this.numeroPosti-other.getNumeroPosti();
 	}
+
+
+	public int getId() {
+		// TODO Auto-generated method stub
+		return this.id;
+	}
 	
 	
 	

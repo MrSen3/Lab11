@@ -7,6 +7,7 @@ import it.polito.tdp.bar.model.Evento.TipoEvento;
 
 public class Simulatore {
 
+	//Coda
 	private PriorityQueue<Evento> queue = new PriorityQueue<>();
 	
 	//Stato del mondo
@@ -19,15 +20,14 @@ public class Simulatore {
 	private Duration tempoAlTavolo; //tra 60 e 120 minuti
 	private float tolleranza;
 	private final int NUM_EVENTI;
+	
 	//Statistiche raccolte
 	private int numero_totale_clienti;
 	private int numero_clienti_soddisfatti;
 	private int numero_clienti_insoddisfatti;
+	
 	//Variabili interne
 	Random random = new Random();
-	
-	
-	
 	
 	public Simulatore() {
 		NUM_EVENTI=2000;
@@ -68,8 +68,6 @@ public class Simulatore {
 			Evento ev=new Evento(TipoEvento.ARRIVO_GRUPPO_CLIENTI, tempo, num_persone, tempoAlTavolo, tolleranza);
 			queue.add(ev);
 			System.out.println(i+" "+ev+"\n");
-			if(i==700)
-				break;
 		}
 		
 	}
@@ -85,22 +83,54 @@ public class Simulatore {
 			switch(ev.getTipo()) {
 			
 			case ARRIVO_GRUPPO_CLIENTI:
-				numero_totale_clienti=numero_totale_clienti+ev.getNum_persone();
+				numero_totale_clienti+=ev.getNum_persone();
+				boolean tavoloAssegnato=false;
+				//Devo vedere se e' disponibile un tavolo
+				//con un numeroPosti>=di ev.getNumPersone
+				//Un altro vincolo e' che ev.getnumpersone>i/2
+				for(Tavolo t: listaTavoli) {
+					if(tavoloAssegnato==false && t.isOccupato()==false &&  t.getNumeroPosti()>=ev.getNum_persone() && ev.getNum_persone()>=t.getNumeroPosti()/2) {
+						//Se il tavolo e' libero, ha abbastanza posti e non ne ha troppi liberi allora faccio sedere le persone
+						t.setOccupato(true);
+						tavoloAssegnato=true;
+						//Assegno l'id del tavolo all'evento
+						ev.setId(t.getId());
+						//Adesso aggiungo alla coda l'evento futuro in cui le persone lasceranno libero il tavolo
+						queue.add(new Evento(TipoEvento.TAVOLO_LIBERATO, (ev.getTime().plus(ev.getDurata())), ev.getNum_persone(), Duration.ZERO, 1));
+						
+					}
+				}
 				
-				if
-				tolleranza>random.nextFloat()
-				//Allora mi fermo
-				
-				
+				//Se non e' stato assegnato il tavolo al gruppo di persone significa che non era disponibile
+				//nessun tavolo con i requisiti desiderati
+				//In tal caso bisogna vedere se: a) il gruppo decide di andarsene-->insoddisfatti++
+											//   b)il gruppo si accomoda al 
+				if(tavoloAssegnato==false) {
+					float probabilita=random.nextFloat();
+					
+					if(tolleranza>=probabilita) {
+					//Allora si fermano al bancone e sono soddisfatti
+						numero_clienti_soddisfatti+=ev.getNum_persone();
+					
+					}
+					else if(tolleranza<probabilita) {
+						numero_clienti_insoddisfatti+=ev.getNum_persone();
+					}
+				}
 				
 				break;
 				
 			case TAVOLO_LIBERATO:
+				//rendo il tavolo libero
+				listaTavoli.get(ev.getId()).setOccupato(false);
+				//aumento il numero di clienti soddisfatti
+				numero_clienti_soddisfatti+=ev.getNum_persone();
 				
 				break;
 			}
 		}
 		
+		System.out.println("Numero totale di clienti: "+numero_totale_clienti+"\nNumero di clienti soddisfatti: "+numero_clienti_soddisfatti+"\nNumero di clienti insoddisfatti: "+numero_clienti_insoddisfatti);
 		
 	}
 

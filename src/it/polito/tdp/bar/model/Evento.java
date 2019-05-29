@@ -10,11 +10,13 @@ public class Evento implements Comparable<Evento> {
 		TAVOLO_LIBERATO //i clienti lasciano un tavolo
 	}
 	
+	
 	private TipoEvento tipo;
 	private Duration time;
 	private int num_persone;
 	private Duration durata;
 	private float tolleranza;
+	private int id;
 	
 	public Evento(TipoEvento tipo, Duration time, int num_persone, Duration durata, float tolleranza) {
 		this.tipo = tipo;
@@ -74,6 +76,16 @@ public class Evento implements Comparable<Evento> {
 	public String toString() {
 		return "Evento [tipo=" + tipo + ", time=" + time + ", num_persone=" + num_persone + ", durata=" + durata
 				+ ", tolleranza=" + tolleranza + "]";
+	}
+
+	public void setId(int id) {
+		// Questo e' un riferimento al tavolo assegnaato al gruppo di clienti
+		this.id=id;
+	}
+
+	public int getId() {
+		// TODO Auto-generated method stub
+		return id;
 	}
 
 	

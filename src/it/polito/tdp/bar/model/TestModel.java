@@ -6,6 +6,7 @@ public class TestModel {
 		// TODO Auto-generated method stub
 		Simulatore sim = new Simulatore();
 		sim.init();
+		sim.run();
 	}
 
 }
